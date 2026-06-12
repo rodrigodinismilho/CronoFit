@@ -2,7 +2,13 @@ const VIEWS = ['calendar', 'dashboard', 'checklist', 'import'];
 let currentView = 'calendar';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  await DB.open();
+  try {
+    await DB.open();
+  } catch (e) {
+    document.getElementById('view-calendar').innerHTML =
+      '<div style="padding:60px 16px;text-align:center"><p style="color:#e53e3e;font-weight:600">Erro na base de dados</p><p style="color:#666;font-size:14px;margin-top:8px">Tenta abrir no Safari normal sem ser privado</p></div>';
+    return;
+  }
 
   initTabs();
   initCalendar();

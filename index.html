@@ -155,15 +155,16 @@
         const s = document.createElement('script');
         s.src = src;
         s.onload = resolve;
-        s.onerror = reject;
+        s.onerror = () => reject(new Error('Failed to load ' + src));
         document.body.appendChild(s);
+        setTimeout(() => reject(new Error('Timeout ' + src)), 15000);
       });
     }
 
     (async function() {
       try {
-        await loadScript('https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js');
-        await loadScript('https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js');
+        await loadScript('js/chart.min.js');
+        await loadScript('js/papaparse.min.js');
         await loadScript('js/db.js');
         await loadScript('js/utils.js');
         await loadScript('js/calendar.js');
@@ -172,7 +173,12 @@
         await loadScript('js/csv-importer.js');
         await loadScript('js/app.js');
       } catch (e) {
-        document.body.innerHTML = '<div style="padding:40px;text-align:center"><h2>Erro ao carregar app</h2><p style="color:#666">Verifica a ligação à internet e recarrega</p></div>';
+        document.body.innerHTML =
+          '<div style="padding:40px;text-align:center;font-family:Segoe UI,sans-serif">' +
+          '<h2 style="font-size:20px;margin-bottom:12px">Erro ao carregar app</h2>' +
+          '<p style="color:#666;font-size:14px">Tenta recarregar a página</p>' +
+          '<button onclick="location.reload()" style="margin-top:16px;padding:10px 24px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;font-size:14px">Recarregar</button>' +
+          '</div>';
       }
     })();
   </script>
