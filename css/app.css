@@ -414,6 +414,8 @@ button {
 
 .chart-container canvas {
   width: 100% !important;
+  max-height: 180px;
+  display: block;
 }
 
 /* ─── Checklist ─── */

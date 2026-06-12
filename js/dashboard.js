@@ -79,6 +79,7 @@ function renderSleepChart(data) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      resizeDelay: 200,
       interaction: { intersect: false, mode: 'index' },
       plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 12, padding: 8, font: { size: 11 } } } },
       scales: {
@@ -129,6 +130,7 @@ function renderHrvChart(data) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      resizeDelay: 200,
       interaction: { intersect: false, mode: 'index' },
       plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 12, padding: 8, font: { size: 11 } } } },
       scales: {
@@ -171,6 +173,7 @@ function renderVolumeChart(events, saudeData) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      resizeDelay: 200,
       plugins: { legend: { display: false } },
       scales: {
         y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 10 } } },
