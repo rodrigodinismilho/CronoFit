@@ -2,7 +2,6 @@ const CACHE = 'cronofit-v2';
 const ASSETS = [
   'index.html',
   'css/app.css',
-  'js/chart.min.js',
   'js/papaparse.min.js',
   'js/db.js',
   'js/utils.js',

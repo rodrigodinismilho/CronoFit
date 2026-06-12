@@ -1,7 +1,3 @@
-let sleepChart = null;
-let hrvChart = null;
-let volumeChart = null;
-
 async function renderDashboard() {
   const saudeData = await DB.getAllSaude();
   const events = await DB.getAllEvents();
@@ -22,9 +18,15 @@ async function renderDashboard() {
   document.getElementById('avg-hrv').textContent = avgHrv !== '—' ? `${avgHrv}ms` : '—';
   document.getElementById('week-km').textContent = weekKm ? `${weekKm.toFixed(1)}km` : '0km';
 
-  renderSleepChart(last7);
-  renderHrvChart(last7);
-  renderVolumeChart(events, last14);
+  renderBars('sleep-chart', renderSleepBars(last7));
+  renderBars('hrv-chart', renderHrvBars(last7));
+  renderBars('volume-chart', renderVolumeBars(events));
+}
+
+function renderBars(containerId, bars) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = bars;
 }
 
 function getWeekBounds() {
@@ -40,147 +42,66 @@ function getWeekBounds() {
   };
 }
 
-function renderSleepChart(data) {
-  const ctx = document.getElementById('sleep-chart');
-  if (!ctx) return;
-  if (sleepChart) sleepChart.destroy();
-
-  const labels = data.map(d => d.date.slice(5));
-  const scores = data.map(d => d.sleepScore || 0);
-  const durations = data.map(d => d.sleepDuration || 0);
-
-  sleepChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'SleepScore',
-          data: scores,
-          borderColor: '#a855f7',
-          backgroundColor: 'rgba(168,85,247,.1)',
-          fill: true,
-          tension: .3,
-          pointRadius: 4,
-          yAxisID: 'y'
-        },
-        {
-          label: 'Duração (h)',
-          data: durations,
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59,130,246,.1)',
-          fill: true,
-          tension: .3,
-          pointRadius: 4,
-          yAxisID: 'y1'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      resizeDelay: 200,
-      interaction: { intersect: false, mode: 'index' },
-      plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 12, padding: 8, font: { size: 11 } } } },
-      scales: {
-        y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 10 } } },
-        y1: { beginAtZero: true, position: 'right', grid: { display: false }, ticks: { font: { size: 10 } } },
-        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-      }
-    }
-  });
+function renderSleepBars(data) {
+  if (!data.length) return '<div class="chart-empty">Sem dados de sono</div>';
+  const maxScore = Math.max(...data.map(d => d.sleepScore || 0), 50);
+  let html = '<div class="chart-legend"><span>SleepScore</span><span>Duração (h)</span></div>';
+  html += '<div class="bar-group">';
+  for (const d of data) {
+    const pct = Math.round((d.sleepScore || 0) / maxScore * 100);
+    const dur = d.sleepDuration || 0;
+    html += `<div class="bar-col">
+      <div class="bar-label-top">${d.date.slice(5)}</div>
+      <div class="bar-stack">
+        <div class="bar bar-purple" style="height:${pct}%"></div>
+        <div class="bar bar-blue" style="height:${dur * 10}%"></div>
+      </div>
+      <div class="bar-label-bottom">${d.sleepScore || '-'}<span class="bar-sub">${dur.toFixed(1)}h</span></div>
+    </div>`;
+  }
+  html += '</div>';
+  return html;
 }
 
-function renderHrvChart(data) {
-  const ctx = document.getElementById('hrv-chart');
-  if (!ctx) return;
-  if (hrvChart) hrvChart.destroy();
-
-  const labels = data.map(d => d.date.slice(5));
-  const hrv = data.map(d => d.hrv || 0);
-  const hr = data.map(d => d.restingHr || 0);
-
-  hrvChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'HRV (ms)',
-          data: hrv,
-          borderColor: '#22c55e',
-          backgroundColor: 'rgba(34,197,94,.1)',
-          fill: true,
-          tension: .3,
-          pointRadius: 4,
-          yAxisID: 'y'
-        },
-        {
-          label: 'FC Repouso',
-          data: hr,
-          borderColor: '#ef4444',
-          backgroundColor: 'rgba(239,68,68,.1)',
-          fill: true,
-          tension: .3,
-          pointRadius: 4,
-          yAxisID: 'y1'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      resizeDelay: 200,
-      interaction: { intersect: false, mode: 'index' },
-      plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 12, padding: 8, font: { size: 11 } } } },
-      scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 10 } } },
-        y1: { beginAtZero: true, position: 'right', grid: { display: false }, ticks: { font: { size: 10 } } },
-        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-      }
-    }
-  });
+function renderHrvBars(data) {
+  if (!data.length) return '<div class="chart-empty">Sem dados de HRV</div>';
+  const maxHrv = Math.max(...data.map(d => d.hrv || 0), 30);
+  const maxHr = Math.max(...data.map(d => d.restingHr || 0), 60);
+  let html = '<div class="chart-legend"><span>HRV (ms)</span><span>FC Repouso</span></div>';
+  html += '<div class="bar-group">';
+  for (const d of data) {
+    const hrvPct = Math.round((d.hrv || 0) / maxHrv * 100);
+    const hrPct = Math.round((d.restingHr || 0) / maxHr * 100);
+    html += `<div class="bar-col">
+      <div class="bar-label-top">${d.date.slice(5)}</div>
+      <div class="bar-stack">
+        <div class="bar bar-green" style="height:${hrvPct}%"></div>
+        <div class="bar bar-red" style="height:${hrPct}%"></div>
+      </div>
+      <div class="bar-label-bottom">${d.hrv || '-'}<span class="bar-sub">${d.restingHr || '-'}</span></div>
+    </div>`;
+  }
+  html += '</div>';
+  return html;
 }
 
-function renderVolumeChart(events, saudeData) {
-  const ctx = document.getElementById('volume-chart');
-  if (!ctx) return;
-  if (volumeChart) volumeChart.destroy();
-
+function renderVolumeBars(events) {
   const weeks = getLast4Weeks();
-  const weekLabels = [];
-  const weekKms = [];
-
+  const maxKm = 10;
+  let html = '<div class="bar-group volume-group">';
   for (const w of weeks) {
-    weekLabels.push(w.label);
     const km = events
       .filter(e => e.date >= w.start && e.date <= w.end && e.distance)
       .reduce((s, e) => s + e.distance, 0);
-    weekKms.push(parseFloat(km.toFixed(1)));
+    const pct = Math.min(Math.round(km / maxKm * 100), 100);
+    html += `<div class="bar-col">
+      <div class="bar-label-top">${w.label}</div>
+      <div class="bar-track"><div class="bar bar-blue fill" style="height:${pct}%"></div></div>
+      <div class="bar-label-bottom">${km.toFixed(1)}</div>
+    </div>`;
   }
-
-  volumeChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: weekLabels,
-      datasets: [{
-        label: 'km',
-        data: weekKms,
-        backgroundColor: 'rgba(59,130,246,.7)',
-        borderRadius: 4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      resizeDelay: 200,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 10 } } },
-        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-      }
-    }
-  });
+  html += '</div>';
+  return html;
 }
 
 function getLast4Weeks() {
