@@ -1,4 +1,4 @@
-const CACHE = 'cronofit-v1';
+const CACHE = 'cronofit-v2';
 const ASSETS = [
   'index.html',
   'css/app.css',

@@ -15,9 +15,14 @@
   <link rel="icon" type="image/png" href="icons/icon-192.png">
   <title>CronoFit</title>
   <link rel="stylesheet" href="css/app.css">
+  <noscript><style>.view{display:block}.loading-js{display:none}.nojs-msg{display:block!important;padding:40px;text-align:center}</style></noscript>
+  <style>
+    .nojs-msg { display: none; }
+  </style>
 </head>
 <body>
   <!-- Nav -->
+  <div class="nojs-msg" role="alert">CronoFit precisa de JavaScript para funcionar. Ativa o JavaScript nas definições do browser.</div>
   <nav class="app-nav">
     <h1>CronoFit <span class="nav-sub">atleta</span></h1>
     <span style="font-size:14px;color:var(--text-secondary)">🏃</span>
@@ -32,6 +37,7 @@
         <h2 id="month-label">Junho 2026</h2>
         <button id="next-month">›</button>
       </div>
+      <div class="loading-js" style="text-align:center;padding:40px 0;color:#6b7280">A carregar...</div>
       <div class="weekdays" id="weekdays"></div>
       <div class="days-grid" id="days-grid"></div>
       <div class="day-detail" id="day-detail">
