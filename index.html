@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#f8f9fa">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="CronoFit">
+  <meta name="description" content="Agenda inteligente para atletas de meio-fundo">
+  <meta property="og:title" content="CronoFit">
+  <meta property="og:description" content="Agenda inteligente para atletas">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <title>CronoFit</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <!-- Nav -->
+  <nav class="app-nav">
+    <h1>CronoFit <span class="nav-sub">atleta</span></h1>
+    <span style="font-size:14px;color:var(--text-secondary)">🏃</span>
+  </nav>
+
+  <!-- Views -->
+  <main>
+    <!-- Calendar -->
+    <section id="view-calendar" class="view">
+      <div class="month-nav">
+        <button id="prev-month">‹</button>
+        <h2 id="month-label">Junho 2026</h2>
+        <button id="next-month">›</button>
+      </div>
+      <div class="weekdays" id="weekdays"></div>
+      <div class="days-grid" id="days-grid"></div>
+      <div class="day-detail" id="day-detail">
+        <h3 id="selected-date"></h3>
+        <div id="day-events"></div>
+        <button class="add-event-btn" id="add-event-btn">+ Adicionar evento</button>
+        <div class="add-event-form" id="add-event-form">
+          <select id="event-type"></select>
+          <input type="text" id="event-title" placeholder="Título do evento" maxlength="60">
+          <div class="form-row">
+            <input type="time" id="event-time">
+            <input type="text" id="event-duration" placeholder="Duração (ex: 44:30)">
+          </div>
+          <input type="number" id="event-distance" placeholder="Distância (km)" step="0.01" min="0">
+          <div class="form-actions">
+            <button class="btn-secondary" id="cancel-event">Cancelar</button>
+            <button class="btn-primary" id="save-event">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="view-dashboard" class="view">
+      <div class="summary-cards">
+        <div class="summary-card">
+          <div class="card-value" id="avg-sleep">—</div>
+          <div class="card-label">Sono médio (7d)</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-value" id="avg-hrv">—</div>
+          <div class="card-label">HRV médio (7d)</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-value" id="week-km">0km</div>
+          <div class="card-label">Km esta semana</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <h3>SleepScore & Duração (7 dias)</h3>
+        <canvas id="sleep-chart" height="180"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3>HRV & FC Repouso (7 dias)</h3>
+        <canvas id="hrv-chart" height="180"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3>Volume Semanal (km)</h3>
+        <canvas id="volume-chart" height="160"></canvas>
+      </div>
+    </section>
+
+    <!-- Checklist -->
+    <section id="view-checklist" class="view">
+      <div class="checklist-header">
+        <button id="checklist-prev" style="font-size:22px;color:var(--primary)">‹</button>
+        <h2 id="checklist-date-label"></h2>
+        <button id="checklist-next" style="font-size:22px;color:var(--primary)">›</button>
+      </div>
+      <div class="progress-container">
+        <div class="progress-fill" id="checklist-progress"></div>
+      </div>
+      <ul class="checklist-items" id="checklist-items"></ul>
+      <div class="add-checklist-item">
+        <input type="text" id="checklist-new-input" placeholder="Nova tarefa..." maxlength="50">
+        <button id="add-checklist-btn">+</button>
+      </div>
+    </section>
+
+    <!-- Import -->
+    <section id="view-import" class="view">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:12px">Importar Garmin</h2>
+      <div class="import-type-select">
+        <select id="import-type">
+          <option value="activities">Atividades (treinos)</option>
+          <option value="saude">Sono & Recuperação</option>
+        </select>
+      </div>
+      <div class="import-area" id="import-area">
+        <div class="import-icon">📁</div>
+        <p>Toca para selecionar ficheiro CSV</p>
+        <input type="file" id="csv-file-input" accept=".csv">
+      </div>
+      <div class="import-preview" id="import-preview">
+        <h3>Pré-visualização</h3>
+        <div class="table-wrapper">
+          <table id="preview-table"></table>
+        </div>
+        <div class="import-actions">
+          <button class="btn-secondary" id="cancel-import">Cancelar</button>
+          <button class="btn-primary" id="confirm-import">Importar</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Tab Bar -->
+  <nav class="tab-bar">
+    <button class="tab-item active" data-view="calendar">
+      <span class="tab-icon">📅</span>
+      <span>Calendário</span>
+    </button>
+    <button class="tab-item" data-view="dashboard">
+      <span class="tab-icon">📊</span>
+      <span>Performance</span>
+    </button>
+    <button class="tab-item" data-view="checklist">
+      <span class="tab-icon">✅</span>
+      <span>Tarefas</span>
+    </button>
+    <button class="tab-item" data-view="import">
+      <span class="tab-icon">📥</span>
+      <span>Importar</span>
+    </button>
+  </nav>
+
+  <!-- Scripts -->
+  <script>
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.body.appendChild(s);
+      });
+    }
+
+    (async function() {
+      try {
+        await loadScript('https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js');
+        await loadScript('https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js');
+        await loadScript('js/db.js');
+        await loadScript('js/utils.js');
+        await loadScript('js/calendar.js');
+        await loadScript('js/dashboard.js');
+        await loadScript('js/checklist.js');
+        await loadScript('js/csv-importer.js');
+        await loadScript('js/app.js');
+      } catch (e) {
+        document.body.innerHTML = '<div style="padding:40px;text-align:center"><h2>Erro ao carregar app</h2><p style="color:#666">Verifica a ligação à internet e recarrega</p></div>';
+      }
+    })();
+  </script>
+</body>
+</html>
