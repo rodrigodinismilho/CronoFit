@@ -76,9 +76,9 @@ function parseDuration(iso) {
 function detectActivityType(keywords) {
   const text = (keywords || '').toLowerCase();
   if (text.includes('rolar') || text.includes('z2') || text.includes('recupera')) return 'z2';
-  if (text.includes('série') || text.includes('interval') || text.includes('ritmo') || text.includes('tiro')) return 'series';
-  if (text.includes('força') || text.includes('forca') || text.includes('muscula') || text.includes('ginásio') || text.includes('academia')) return 'forca';
-  if (text.includes('prova') || text.includes('competi') || text.includes('corrida') || text.includes('challenge')) return 'prova';
+  if (text.includes('série') || text.includes('series') || text.includes('interval') || text.includes('ritmo') || text.includes('tiro')) return 'series';
+  if (text.includes('força') || text.includes('forca') || text.includes('muscula') || text.includes('ginásio') || text.includes('ginasio') || text.includes('academia')) return 'forca';
+  if (text.includes('prova') || text.includes('competi') || text.includes('challenge') || text.includes('campeonato')) return 'prova';
   if (text.includes('descanso') || text.includes('folga')) return 'descanso';
   return 'z2';
 }

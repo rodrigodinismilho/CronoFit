@@ -97,10 +97,11 @@ function mapActivityRow(row) {
   let avgHr = find(['avg', 'média', 'media', 'average', 'heart']);
   if (avgHr) avgHr = parseInt(avgHr) || '';
 
-  let notes = find(['type', 'tipo', 'name', 'activity', 'workout', 'notes', 'title']);
-  const type = detectActivityType(notes);
+  let title = find(['title', 'name', 'notes', 'activity', 'workout']);
+  let activityType = find(['type', 'tipo']);
+  const type = detectActivityType(activityType + ' ' + title);
 
-  return { date, type, distance, duration, avgHr, notes };
+  return { date, type, distance, duration, avgHr, notes: title || activityType };
 }
 
 function mapSaudeRow(row) {
